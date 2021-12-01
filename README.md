@@ -5,3 +5,8 @@
 ~~~
 pip list --format=freeze > requirements.txt
 ~~~
+
+# Install python Package
+~~~
+pip install -r requirements.txt
+~~~
