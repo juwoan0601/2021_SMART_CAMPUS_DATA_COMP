@@ -10,3 +10,8 @@ pip list --format=freeze > requirements.txt
 ~~~
 pip install -r requirements.txt
 ~~~
+
+# How To Use TPOT in script
+~~~
+python -m train.automl_tpot.py
+~~~
