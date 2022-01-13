@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import pickle
 
 from preprocessing.seperate_feature_target import collective_columns
 import config
@@ -125,7 +126,7 @@ def ada_boost(test_df):
     # test_results = abr_model.predict(test_feature)
     # return test_results
 
-def XGBoost(test_df):
+def XGBoost(test_df, save=False):
     from xgboost import XGBRegressor
     from sklearn.model_selection import train_test_split
 
@@ -170,7 +171,11 @@ def XGBoost(test_df):
     # test_results = model.predict(test_feature)
     # return test_results
 
-def tpot_34_column(test_df):
+    # Save Model
+    if save:
+        pickle.dump(model, open("./XGBoost_{0}.pkl".format(round(mape(y_test, results_test),2)), 'wb')) #dump해야 모델 전체가 저장됨
+
+def tpot_34_column(test_df, save=False):
     from sklearn.ensemble import ExtraTreesRegressor
     from sklearn.pipeline import make_pipeline, make_union
     from sklearn.preprocessing import RobustScaler
@@ -211,6 +216,10 @@ def tpot_34_column(test_df):
     #print("[TEST  SET] MAPE: {0} %".format(mape(y_test, results_test)))
     #print("[TEST  SET] MAXE: {0} ".format(maxe(y_test, results_test)))
 
+    # Save Model
+    if save:
+        pickle.dump(exported_pipeline, open("./tpot_34_column_{0}.pkl".format(round(mape(y_test, results_test),2)), 'wb')) #dump해야 모델 전체가 저장됨
+
 def decision_tree(test_df, display=False):
     from sklearn.tree import DecisionTreeRegressor
     from sklearn.model_selection import train_test_split
@@ -229,7 +238,7 @@ def decision_tree(test_df, display=False):
     
     X_train, X_test, y_train, y_test = train_test_split(feature, target, random_state=1)
 
-    model = DecisionTreeRegressor(max_depth=5, random_state=1)
+    model = DecisionTreeRegressor(max_depth=100, random_state=1)
 
     model.fit(X_train, y_train)
     results_train = model.predict(X_train)
@@ -245,8 +254,9 @@ def decision_tree(test_df, display=False):
     if display:
         import matplotlib.pyplot as plt
         plt.figure()
-        plt.scatter(range(len(y_test)), y_test, s=20, edgecolor="black", c="darkorange", label="data")
-        plt.plot(range(len(results_test)), results_test, color="cornflowerblue", label="max_depth=2", linewidth=1)
+        #plt.scatter(range(len(y_test)), y_test, s=20, edgecolor="black", c="darkorange", label="data")
+        plt.plot(range(len(y_test)), y_test, color="blue", label="data", linewidth=1)
+        plt.plot(range(len(results_test)), results_test, color="red", label="decision tree", linewidth=1)
         plt.xlabel("data")
         plt.ylabel("target")
         plt.title("Decision Tree Regression")
