@@ -177,9 +177,14 @@ def tpot_34_column(test_df, save=False):
 
     train_df = pd.read_csv(config.TRAIN_DATASET_PATH)
     train_df = train_df.dropna(axis='index',subset=[config.TARGET_COLUMN_NAME])
-    train_df = train_df.fillna(0)
+    train_df = train_df.fillna(method='backfill')
+    #train_df = train_df.fillna(0)
 
-    SELECTED_COLUMNS = config.DATE_COLUMNS + config.MENU_COLUMNS + config.WEATHER_COLUMNS + config.SCHEDULE_COLUMNS
+    #SELECTED_COLUMNS = config.DATE_COLUMNS
+    #SELECTED_COLUMNS = config.DATE_COLUMNS + config.MENU_COLUMNS
+    #SELECTED_COLUMNS = config.DATE_COLUMNS + config.SCHEDULE_COLUMNS
+    #SELECTED_COLUMNS = config.DATE_COLUMNS + config.WEATHER_COLUMNS
+    SELECTED_COLUMNS = config.DATE_COLUMNS+config.MENU_COLUMNS+config.WEATHER_COLUMNS+config.SCHEDULE_COLUMNS
 
     # Train
     feature, target = collective_columns(
@@ -262,3 +267,54 @@ def decision_tree(test_df, display=False):
     # test_results = model.predict(test_feature)
     # return test_results
     
+def tpot_35_column(test_df, save=False):
+    import numpy as np
+    import pandas as pd
+    from sklearn.feature_selection import SelectPercentile, f_regression
+    from sklearn.linear_model import ElasticNetCV
+    from sklearn.model_selection import train_test_split
+    from sklearn.pipeline import make_pipeline, make_union
+    from tpot.builtins import StackingEstimator
+    from xgboost import XGBRegressor
+
+    train_df = pd.read_csv(config.TRAIN_DATASET_PATH)
+    train_df = train_df.dropna(axis='index',subset=[config.TARGET_COLUMN_NAME])
+    train_df = train_df.fillna(method='backfill')
+    #train_df = train_df.fillna(0)
+
+    #SELECTED_COLUMNS = config.DATE_COLUMNS
+    #SELECTED_COLUMNS = config.DATE_COLUMNS + config.MENU_COLUMNS
+    #SELECTED_COLUMNS = config.DATE_COLUMNS + config.SCHEDULE_COLUMNS
+    #SELECTED_COLUMNS = config.DATE_COLUMNS + config.WEATHER_COLUMNS
+    SELECTED_COLUMNS = config.DATE_COLUMNS+config.MENU_COLUMNS+config.WEATHER_COLUMNS+config.SCHEDULE_COLUMNS
+    #SELECTED_COLUMNS = config.DATE_COLUMNS+config.MENU_COLUMNS+config.SCHEDULE_COLUMNS
+
+    # Train
+    feature, target = collective_columns(
+        SELECTED_COLUMNS,
+        config.TARGET_COLUMN_NAME,
+        train_df)
+
+    X_train, X_test, y_train, y_test = train_test_split(feature, target, random_state=1)
+
+    # Average CV score on the training set was: -4422.384648634974
+    exported_pipeline = make_pipeline(
+        StackingEstimator(estimator=XGBRegressor(learning_rate=0.001, max_depth=2, min_child_weight=8, n_estimators=100, n_jobs=1, objective="reg:squarederror", subsample=0.5, verbosity=0)),
+        StackingEstimator(estimator=ElasticNetCV(l1_ratio=0.7000000000000001, tol=0.0001)),
+        SelectPercentile(score_func=f_regression, percentile=67),
+        XGBRegressor(learning_rate=0.1, max_depth=4, min_child_weight=10, n_estimators=100, n_jobs=1, objective="reg:squarederror", subsample=0.9500000000000001, verbosity=0)
+    )
+
+    exported_pipeline.fit(X_train, y_train)
+    results_train = exported_pipeline.predict(X_train)
+    results_test = exported_pipeline.predict(X_test)
+
+    print("[METHOD] tpot_35_column ({0})".format(len(SELECTED_COLUMNS)))
+    print("[TRAIN SET] MAPE: {0} %".format(mape(y_train, results_train)))
+    print("[TRAIN SET] MAXE: {0} ".format(maxe(y_train, results_train)))
+    print("[TEST  SET] MAPE: {0} %".format(mape(y_test, results_test)))
+    print("[TEST  SET] MAXE: {0} ".format(maxe(y_test, results_test)))
+
+    # Save Model
+    if save:
+        pickle.dump(exported_pipeline, open("./tpot_35_column_{0}.pkl".format(round(mape(y_test, results_test),2)), 'wb')) #dump해야 모델 전체가 저장됨

@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import filedialog # import filedialog module
 import time
 import random
 import os
@@ -15,7 +16,7 @@ win_WIDTH = 1200
 win_HEIGHT = 500
 
 SELECTED_COLUMNS = config.DATE_COLUMNS + config.MENU_COLUMNS + config.WEATHER_COLUMNS + config.SCHEDULE_COLUMNS
-DEFAULT_VALUES = [2022,1,3,17,30,4,  0,0,0,0,0,0,0,0,0,0,0,0,    25,0,0,0,0,0,0,0,0,0,0,0,   0,0,0,0]
+DEFAULT_VALUES = [2022,1,3,17,30,4,  0,0,0,0,0,0,0,0,0,0,0,0,    25,0,0,0,0,0,0,0,0,0,0,0,0,0,   0,0,0,0]
 
 input_params = []
 for i in range(len(SELECTED_COLUMNS)):
@@ -90,5 +91,26 @@ def plotMonthLine(y):
 
 b_s1 = Button(window,text='Search!',command=predict_m1).grid(row = len(SELECTED_COLUMNS)+1,column = 0)
 b_s2 = Button(window,text='Search!',command=predict_m2).grid(row = len(SELECTED_COLUMNS)+1,column = 1)
+
+def browseFiles():
+    filename = filedialog.askopenfilename(initialdir = "/",
+                                          title = "Select a File",
+                                          filetypes = (("Text files",
+                                                        "*.txt*"),
+                                                       ("all files",
+                                                        "*.*")))
+    # Change label contents
+    label_file_explorer.configure(text="File Opened: "+filename)
+
+label_file_explorer = Label(window,
+                            text = "File Explorer using Tkinter",
+                            width = 100, height = 4,
+                            fg = "blue").grid(row=0, column=0)
+button_explore = Button(window,
+                        text = "Browse Files",
+                        command = browseFiles).grid(row=0, column=1)
+button_exit = Button(window,
+                     text = "Exit",
+                     command = exit).grid(row=0, column=0)
 
 window.mainloop()

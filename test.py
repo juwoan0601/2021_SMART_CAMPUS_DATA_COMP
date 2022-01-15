@@ -7,13 +7,13 @@ from config import TRAIN_DATASET_PATH
 
 df_train = pd.read_csv(TRAIN_DATASET_PATH, encoding='utf-8')
 
-# from forecast import ML
-# ML.tpot_34_column(df_train,save=True)
+from forecast import ML
+ML.tpot_35_column(df_train,save=False)
 
-import pickle
-MODEL_PATH = './saved_model/tpot_34_column_26.19.pkl'
-loaded_model = pickle.load(open(MODEL_PATH, 'rb'))
-a = [2022,1,3,17,30,4,  0,0,0,0,0,0,0,0,0,0,0,0,    25,0,0,0,0,0,0,0,0,0,0,0,   0,0,0,0]
-input = np.reshape(np.array(a),(1,-1))
-result = loaded_model.predict(input)
-print("예상 식수인원은 ", int(result), "명 입니다.")
+# import pickle
+# MODEL_PATH = './saved_model/tpot_34_column_26.19.pkl'
+# loaded_model = pickle.load(open(MODEL_PATH, 'rb'))
+# a = [2022,1,3,17,30,4,  0,0,0,0,0,0,0,0,0,0,0,0,    25,0,0,0,0,0,0,0,0,0,0,0,   0,0,0,0]
+# input = np.reshape(np.array(a),(1,-1))
+# result = loaded_model.predict(input)
+# print("예상 식수인원은 ", int(result), "명 입니다.")
