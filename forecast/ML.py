@@ -4,6 +4,9 @@ import pickle
 
 from preprocessing.seperate_feature_target import collective_columns
 import config
+from verification.cross_validation import k_ford_cross_validation
+from verification.cross_validation import stratified_k_ford_cross_validation
+from verification.making_curve import learning_curve
 
 def mape(a, f):
     return 1/len(a) * np.sum(np.abs(f-a) / (np.abs(a)))*100
@@ -139,21 +142,26 @@ def XGBoost(test_df, save=False):
         config.TARGET_COLUMN_NAME,
         train_df)
 
-    X_train, X_test, y_train, y_test = train_test_split(feature, target, random_state=1)
+    #X_train, X_test, y_train, y_test = train_test_split(feature, target, random_state=1)
 
     #model = XGBRegressor(n_estimators=1000, max_depth=7, eta=0.1, subsample=0.7, colsample_bytree=0.8)
     #model = XGBRegressor(n_estimators=1000, min_child_weight=100, gamma=100, max_depth=3, eta=0.1, subsample=0.5, colsample_bytree=0.5)
     model = XGBRegressor(n_estimators=1000, min_child_weight=10, gamma=1, max_depth=3, eta=0.1, subsample=0.5, colsample_bytree=0.5)
+    
+    learning_curve(feature, target, model)
 
-    model.fit(X_train, y_train)
-    results_train = model.predict(X_train)
-    results_test = model.predict(X_test)
+    model.fit(feature, target)
+    results_train = model.predict(feature)
+    #results_test = model.predict(X_test)
+
+    k_ford_cross_validation(model, feature, target)
+    learning_curve(feature, target, model)
 
     print("[METHOD] XGBoost ({0})".format(len(SELECTED_COLUMNS)))
-    print("[TRAIN SET] MAPE: {0} %".format(mape(y_train, results_train)))
-    print("[TRAIN SET] MAXE: {0} ".format(maxe(y_train, results_train)))
-    print("[TEST  SET] MAPE: {0} %".format(mape(y_test, results_test)))
-    print("[TEST  SET] MAXE: {0} ".format(maxe(y_test, results_test)))
+    print("[TRAIN SET] MAPE: {0} %".format(mape(target, results_train)))
+    print("[TRAIN SET] MAXE: {0} ".format(maxe(target, results_train)))
+    #print("[TEST  SET] MAPE: {0} %".format(mape(y_test, results_test)))
+    #print("[TEST  SET] MAXE: {0} ".format(maxe(y_test, results_test)))
 
     # test_feature, test_target = collective_columns(
     #     SELECTED_COLUMNS,
@@ -192,7 +200,7 @@ def tpot_34_column(test_df, save=False):
         config.TARGET_COLUMN_NAME,
         train_df)
 
-    X_train, X_test, y_train, y_test = train_test_split(feature, target, random_state=1)
+    #X_train, X_test, y_train, y_test = train_test_split(feature, target, random_state=1)
 
     # Average CV score on the training set was: -2967.5664131624753
     exported_pipeline = make_pipeline(
@@ -202,15 +210,16 @@ def tpot_34_column(test_df, save=False):
         ExtraTreesRegressor(bootstrap=False, max_features=0.8, min_samples_leaf=3, min_samples_split=12, n_estimators=100,random_state=1)
     )
 
-    exported_pipeline.fit(X_train, y_train)
-    results_train = exported_pipeline.predict(X_train)
-    results_test = exported_pipeline.predict(X_test)
+    learning_curve(feature, target, exported_pipeline)
+    exported_pipeline.fit(feature, target)
+    results_train = exported_pipeline.predict(feature)
+    #results_test = exported_pipeline.predict(X_test)
 
     print("[METHOD] tpot_34_column ({0})".format(len(SELECTED_COLUMNS)))
-    print("[TRAIN SET] MAPE: {0} %".format(mape(y_train, results_train)))
-    print("[TRAIN SET] MAXE: {0} ".format(maxe(y_train, results_train)))
-    print("[TEST  SET] MAPE: {0} %".format(mape(y_test, results_test)))
-    print("[TEST  SET] MAXE: {0} ".format(maxe(y_test, results_test)))
+    print("[TRAIN SET] MAPE: {0} %".format(mape(target, results_train)))
+    print("[TRAIN SET] MAXE: {0} ".format(maxe(target, results_train)))
+    #print("[TEST  SET] MAPE: {0} %".format(mape(y_test, results_test)))
+    #print("[TEST  SET] MAXE: {0} ".format(maxe(y_test, results_test)))
 
     # Save Model
     if save:
