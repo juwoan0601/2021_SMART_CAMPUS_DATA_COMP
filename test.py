@@ -4,11 +4,17 @@ Example code of using forcast
 import pandas as pd
 import numpy as np
 from config import TRAIN_DATASET_PATH
+import config
 
 df_train = pd.read_csv(TRAIN_DATASET_PATH, encoding='utf-8')
 
 from forecast import ML
-ML.tpot_35_column(df_train,save=False)
+columns = config.DATE_COLUMNS
+#columns = config.DATE_COLUMNS + config.MENU_COLUMNS
+#columns = config.DATE_COLUMNS + config.WEATHER_COLUMNS
+#columns = config.DATE_COLUMNS + config.SCHEDULE_COLUMNS
+#columns = config.DATE_COLUMNS + config.MENU_COLUMNS + config.WEATHER_COLUMNS + config.SCHEDULE_COLUMNS
+#model = ML.tpot_35_column(df_train,save=True,columns=columns)
 
 # import pickle
 # MODEL_PATH = './saved_model/tpot_34_column_26.19.pkl'

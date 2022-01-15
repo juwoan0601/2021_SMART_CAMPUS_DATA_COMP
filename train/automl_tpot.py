@@ -7,7 +7,7 @@ from datetime import datetime
 import config
 from preprocessing.seperate_feature_target import collective_columns
 
-RESULT_PATH = './tpot_headcount_best_model_{0}.py'.format(datetime.now().strftime("%Y%m%d%H%M%S"))
+RESULT_PATH = './tpot_35C_best_model_{0}.py'.format(datetime.now().strftime("%Y%m%d%H%M%S"))
 
 # Load dataset
 df = pd.read_csv(config.TRAIN_DATASET_PATH)
