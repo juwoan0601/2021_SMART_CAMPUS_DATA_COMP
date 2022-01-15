@@ -3,12 +3,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 def k_ford_cross_validation(model, x, y):
-
     from sklearn.model_selection import cross_val_score
     from sklearn.model_selection import cross_validate
-
     from sklearn.model_selection import KFold
-
     from collections import Counter
 
     kfold = KFold(n_splits = 5, shuffle = True, random_state = 10)
@@ -27,9 +24,7 @@ def k_ford_cross_validation(model, x, y):
     print('5겹 교차 검증 점수 (분할기 사용) : ', kfold_scores)
     print("5겹 교차 검증 평균 점수 (분할기 사용) : {:.2f}".format(kfold_scores.mean()))
 
-
 def stratified_k_ford_cross_validation(model, x, y):
-
     from sklearn.model_selection import cross_val_score
     from sklearn.model_selection import cross_validate
     from sklearn.model_selection import StratifiedKFold
@@ -45,7 +40,6 @@ def stratified_k_ford_cross_validation(model, x, y):
     print("기본 교차 검증 평균 점수 : {:.2f}".format(basic_scores.mean()))
     print('5겹 교차 검증 점수 (분할기 사용) : ', kfold_scores)
     print("5겹 교차 검증 평균 점수 (분할기 사용) : {:.2f}".format(kfold_scores.mean()))
-
 
 def loocv(model, x, y):
     from sklearn.model_selection import cross_val_score
