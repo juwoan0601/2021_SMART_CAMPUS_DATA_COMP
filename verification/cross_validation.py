@@ -58,7 +58,7 @@ def loocv(model, x, y):
     print("교차 검증 분할 횟수 : ", len(scores))
     print("평균 정확도 : {:.2f}".format(scores.mean()))
 
-def a():
-    from sklearn.model_selection import cross_val_score
-    from sklearn.model_selection import ShuffleSplit
-    from sklearn.model_selection import RepeatedStratifiedKFold
+# def a():
+#     from sklearn.model_selection import cross_val_score
+#     from sklearn.model_selection import ShuffleSplit
+#     from sklearn.model_selection import RepeatedStratifiedKFold
