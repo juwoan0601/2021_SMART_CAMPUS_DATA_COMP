@@ -344,3 +344,62 @@ def tpot_35_column(test_df, save=False, columns=[]):
         pickle.dump(exported_pipeline, open("./tpot_35_column_{0}.pkl".format(round(mape(y_test, results_test),2)), 'wb')) #dump해야 모델 전체가 저장됨
 
     return exported_pipeline
+
+def tpot_36_column(test_df, save=False, columns=[]):
+    import numpy as np
+    import pandas as pd
+    from sklearn.linear_model import ElasticNetCV, SGDRegressor
+    from sklearn.model_selection import train_test_split
+    from sklearn.pipeline import make_pipeline, make_union
+    from sklearn.preprocessing import MinMaxScaler
+    from tpot.builtins import StackingEstimator
+    from xgboost import XGBRegressor
+
+    train_df = pd.read_csv(config.TRAIN_DATASET_PATH)
+    train_df = train_df.dropna(axis='index',subset=[config.TARGET_COLUMN_NAME])
+    train_df = train_df.fillna(method='backfill')
+
+    if len(columns) == 0:   
+        SELECTED_COLUMNS = config.DATE_COLUMNS + config.MENU_COLUMNS + config.WEATHER_COLUMNS + config.SCHEDULE_COLUMNS
+    else:
+        SELECTED_COLUMNS = columns
+
+    # Train
+    feature, target = collective_columns(
+        SELECTED_COLUMNS,
+        config.TARGET_COLUMN_NAME,
+        train_df)
+
+    X_train, X_test, y_train, y_test = train_test_split(feature, target, random_state=1)
+
+    # Average CV score on the training set was: -4368.305977194812
+    exported_pipeline = make_pipeline(
+        StackingEstimator(estimator=ElasticNetCV(l1_ratio=0.45, tol=0.001)),
+        MinMaxScaler(),
+        MinMaxScaler(),
+        StackingEstimator(estimator=SGDRegressor(alpha=0.001, eta0=0.1, fit_intercept=True, l1_ratio=0.25, learning_rate="constant", loss="huber", penalty="elasticnet", power_t=50.0)),
+        XGBRegressor(learning_rate=0.1, max_depth=4, min_child_weight=4, n_estimators=100, n_jobs=1, objective="reg:squarederror", subsample=1.0, verbosity=0)
+    )
+
+    exported_pipeline.fit(X_train, y_train)
+    learning_curve_pipeline(
+        feature, 
+        target, 
+        exported_pipeline,
+        save,
+        label="tpot_36_column")
+    exported_pipeline.fit(X_train, y_train)
+    results_train = exported_pipeline.predict(X_train)
+    results_test = exported_pipeline.predict(X_test)
+
+    print("[METHOD] tpot_36_column ({0})".format(len(SELECTED_COLUMNS)))
+    print("[TRAIN SET] MAPE: {0} %".format(mape(y_train, results_train)))
+    print("[TRAIN SET] MAXE: {0} ".format(maxe(y_train, results_train)))
+    print("[TEST  SET] MAPE: {0} %".format(mape(y_test, results_test)))
+    print("[TEST  SET] MAXE: {0} ".format(maxe(y_test, results_test)))
+
+    # Save Model
+    if save:
+        pickle.dump(exported_pipeline, open("./tpot_36_column_{0}.pkl".format(round(mape(y_test, results_test),2)), 'wb')) #dump해야 모델 전체가 저장됨
+
+    return exported_pipeline
