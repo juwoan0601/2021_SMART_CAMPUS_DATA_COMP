@@ -15,8 +15,7 @@ DATE_COLUMNS = [
     'Year', 
     'Month', 
     'Day', 
-    'Hour',  
-    'Minute',
+    'Hour',
     'Week N'
 ]
 
@@ -130,7 +129,7 @@ win_WIDTH = 1200
 win_HEIGHT = 500
 
 SELECTED_COLUMNS = DATE_COLUMNS + MENU_COLUMNS + WEATHER_COLUMNS + SCHEDULE_COLUMNS
-DEFAULT_VALUES = [2022,1,3,17,30,4,  0,0,0,0,0,0,0,0,0,0,0,0,    25,0,0,0,0,0,0,0,0,0,0,0,0,0,   0,0,0,0]
+DEFAULT_VALUES = [2022,1,3,17,4,  0,0,0,0,0,0,0,0,0,0,0,0,    25,0,0,0,0,0,0,0,0,0,0,0,0,0,   0,0,0,0]
 DEFAULT_VALUES_WEATHER = [12.5,0,231,1.3,1020,1021,50,5,13797,30,0,0,0]
 
 NCOL_SEC1 = 2
@@ -202,46 +201,45 @@ result_text4.grid(row = 7,column = NCOL_SEC2)
 
 processed_value = Label(window, text="...").grid(row=100,column=1,columnspan=100)
 inputs = {}
-inputs['A'] = np.zeros(6)
-inputs['B'] = np.zeros(18)
-inputs['C'] = np.zeros(19)
-inputs['D'] = np.zeros(10)
-inputs['E'] = np.zeros(35)
+inputs['A'] = np.zeros(5)
+inputs['B'] = np.zeros(17)
+inputs['C'] = np.zeros(18)
+inputs['D'] = np.zeros(9)
+inputs['E'] = np.zeros(34)
 def process_model_input():
-    input_value = np.zeros(35)
+    input_value = np.zeros(34)
     date = "{0}-{1}-{2}".format(input1.get(),input2.get(),input3.get())
     dt = datetime.strptime(date, '%Y-%m-%d')
     input_value[0] = input1.get()
     input_value[1] = input2.get()
     input_value[2] = input3.get()
     input_value[3] = input4.get()
-    input_value[4] = 30
-    input_value[5] = dt.weekday()+1
-    for i in range(len(DATE_COLUMNS)): #6
+    input_value[4] = dt.weekday()+1
+    for i in range(len(DATE_COLUMNS)): #5
         inputs['A'][i] = input_value[i]
         inputs['B'][i] = input_value[i]
         inputs['C'][i] = input_value[i]
         inputs['D'][i] = input_value[i]
     for i in range(len(MENU_COLUMNS)): #12
-        input_value[6+i] = input_menu[i].get()
-        inputs['B'][6+i] = input_menu[i].get()
+        input_value[5+i] = input_menu[i].get()
+        inputs['B'][5+i] = input_menu[i].get()
     for i in range(len(WEATHER_COLUMNS)): #13
-        input_value[18+i] = input_weather[i].get()
-        inputs['C'][6+i] = input_weather[i].get()
+        input_value[17+i] = input_weather[i].get()
+        inputs['C'][5+i] = input_weather[i].get()
     for i in range(len(SCHEDULE_COLUMNS)): #4
-        input_value[31+i] = input_sch[i].get()*2
-        inputs['D'][6+i] = input_sch[i].get()*2
+        input_value[30+i] = input_sch[i].get()*2
+        inputs['D'][5+i] = input_sch[i].get()*2
     inputs['E'] = input_value
     #Label(window, text=','.join(list(map(str,input_value)))).grid(row=100,column=NCOL_SEC1+1)
 #Button(window,text='Check!',command=process_model_input).grid(row = 100,column = NCOL_SEC1)
 
 def predict():
     process_model_input()
-    MODEL_PATH_A = './saved_model/tpot_35_column_39.89_A.pkl'
-    MODEL_PATH_B = './saved_model/tpot_35_column_34.66_B.pkl'
-    MODEL_PATH_C = './saved_model/tpot_35_column_36.67_C.pkl'
-    MODEL_PATH_D = './saved_model/tpot_35_column_33.79_D.pkl'
-    MODEL_PATH_E = './saved_model/tpot_35_column_32.05_E.pkl'
+    MODEL_PATH_A = './saved_model/tpot_36_column_27.12_A.pkl'
+    MODEL_PATH_B = './saved_model/tpot_36_column_26.95_B.pkl'
+    MODEL_PATH_C = './saved_model/tpot_36_column_27.88_C.pkl'
+    MODEL_PATH_D = './saved_model/tpot_36_column_27.16_D.pkl'
+    MODEL_PATH_E = './saved_model/tpot_36_column_25.41_E.pkl'
     loaded_model_A = pickle.load(open(MODEL_PATH_A, 'rb'))
     loaded_model_B = pickle.load(open(MODEL_PATH_B, 'rb'))
     loaded_model_C = pickle.load(open(MODEL_PATH_C, 'rb'))
@@ -284,7 +282,7 @@ def predict():
         week_input[0,3] = tl[i]
         for j in range(7):
             week_input[0,2] = week_input[0,2] + 1
-            week_input[0,5] = (week_input[0,5] + 1)%7 + 1
+            week_input[0,4] = (week_input[0,4] + 1)%7 + 1
             week_value[i].append(loaded_model_E.predict(week_input))
     plotWeekLine(week_value)
 
@@ -294,13 +292,6 @@ def plotWeekLine(y):
     plt.plot(np.arange(7),y[0], lw=1, c='green',ms=1,label='Breakfast')
     plt.plot(np.arange(7),y[1], lw=1, c='blue',ms=1,label='Lunch')
     plt.plot(np.arange(7),y[2], lw=1, c='red',ms=1,label='Dinner')
-    # ax1 = plt.subplot(111, xlim=(0, 6))
-    # ax1.plot(np.arange(7),y[0], lw=1, c='green',ms=1)
-    # ax2 = plt.subplot(111, xlim=(0, 6))
-    # ax2.plot(np.arange(7),y[1], lw=1, c='blue',ms=1)
-    # ax3 = plt.subplot(111, xlim=(0, 6))
-    # ax3.plot(np.arange(7),y[2], lw=1, c='red',ms=1)
-    # ax1.set_title("Head Count for a Week")
     plt.title("Head Count for a Week")
     plt.legend(loc=1)
     plt.xlabel("weekand")

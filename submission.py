@@ -3,7 +3,7 @@ import pandas as pd
 import config
 from preprocessing.seperate_feature_target import collective_columns
 
-MODEL_PATH_E = './saved_model/tpot_35_column_32.05_E.pkl'
+MODEL_PATH_E = './saved_model/tpot_36_column_25.41_E.pkl'
 loaded_model_E = pickle.load(open(MODEL_PATH_E, 'rb'))
 df_test = pd.read_csv(config.TEST_DATASET_PATH, encoding='utf-8')
 
